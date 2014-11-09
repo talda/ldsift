@@ -24,7 +24,7 @@ if ~exist('opnormals','var')
     opnormals = 0;
 end
 if ~exist('ExcludeBoundery','var')
-    ExcludeBoundery = 0;
+    ExcludeBoundery = 1;
 end
 
 %mesh.vertices = vertex;

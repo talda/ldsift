@@ -1,19 +1,25 @@
 function [ D, img ] = SiftFeatures (vertex, faces, normals, detectedPts, scale)
 %SiftFeatures create mesh sift features
 
-D = [];
-for point = detectedPts'  
+D = zeros(128, size(detectedPts, 1));
+for pnt_index = 1:size(detectedPts, 1)
+    point = detectedPts(pnt_index);
     %[ img ] = create_depth_image( vertex, faces, vertex(point,:), normals(point,:), Umax(:,point)', scale(point) );
     pix = 21;
     support = pix / scale(point);
 
     vv = repmat(vertex(point,:), length(vertex),1);
     dd = sqrt(sum((vv-vertex).^2,2));
+    if sum(dd < scale(point)) < 3
+        continue;
+    end    
+    
     vvv = vertex(dd<scale(point),:);
+
     [coeff] = princomp(vvv);
-    
-    
-    
+
+
+
     FV.vertices = vertex;
     FV.faces = faces;
 
@@ -23,7 +29,7 @@ for point = detectedPts'
     FV.modelviewmatrix= create_lookat_matrix(eyevec, cent, coeff(:,1)');%Umax(:,point)');
     FV.projectionmatrix=eye(4,4);
     FV.viewport = [-(support-pix)/2,-(support-pix)/2,support,support];
-    
+
     I = zeros (pix,pix,6); 
     I(:,:,5)=Inf; % Background depth 
 
@@ -31,21 +37,21 @@ for point = detectedPts'
     FV.enabletexture=0;
     FV.culling=0;
     FV.enabledepthtest=1;
-    
+
     J=renderpatch(I,FV); 
 
     img = J(:,:,5);
     img1 = img;
-    
-    
+
+
     img(11,11) = (img(11,10) + img(11,12) + img(10,11) + img(12,11))/4;
-    
+
     mm = max(img(img<Inf));
     mm2 = max(max(img));
     if (~isempty (mm) && mm2 == Inf)
         img(img==Inf) = mm;
     end
-    
+
     img = img * 10;
 
     [Ix, Iy] = vl_grad(img) ;
@@ -56,7 +62,7 @@ for point = detectedPts'
     f = [10 10 2 0]';
 
     d = double(vl_siftdescriptor(grd, f)) ;
-    
+
     img = rot90(img,2);
 
     [Ix, Iy] = vl_grad(img) ;
@@ -67,7 +73,8 @@ for point = detectedPts'
     f = [10 10 2 0]';
 
     d = d + double(vl_siftdescriptor(grd, f)) ;
-    D = [D d];
+
+    D(:,pnt_index) = d;
 
 end
 

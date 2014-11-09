@@ -14,7 +14,7 @@ if ~isfield(params,'sigscale')
     params.sigscale = 0;
 end
 if ~isfield(params,'ExcludeBoundery')
-    params.ExcludeBoundery = 1;
+    params.ExcludeBoundery = 0;
 end
 
 %dog find geometry difference of gaussians features
@@ -52,9 +52,10 @@ end
     D = my_euclidean_distance(triangulation2adjacency(faces),vertex);
     d = sum(D);
     w = sum(triangulation2adjacency(faces));
+    w(w==0) = w(w==0)+1;
    scale = full((d./w)');
    if (params.ExcludeBoundery)
-       boundary = find_boundary_vertex(faces);
+       boundary = compute_boundary(faces);
        for k = 1:length(detectedPts)
            detectedPts{k} = setdiff(detectedPts{k}, boundary);           
        end

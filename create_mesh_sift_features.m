@@ -26,8 +26,15 @@ end
 if ~exist('ExcludeBoundery','var')
     ExcludeBoundery = 0;
 end
+
 %mesh.vertices = vertex;
 %mesh.vertexNormals = compute_normal(vertex,faces)';
+if size(vertex,1) == 3
+    vertex = vertex';
+end
+if size(faces,1) == 3
+    faces = faces';
+end
 normals = compute_normal(vertex,faces)';
 % if (opnormals)
 %     normals = -normals;
